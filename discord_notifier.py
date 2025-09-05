@@ -133,20 +133,23 @@ class DiscordNotifier:
                 "inline": False
             })
         
+        # Get politician name from trade data
+        politician_name = trade.get('politician_full_name', 'Unknown Politician')
+        
         # Create Discord embed
         embed = {
-            "title": f"{emoji} Nancy Pelosi {trade_type_display}!",
+            "title": f"{emoji} {politician_name} {trade_type_display}!",
             "color": color,
             "fields": fields,
             "footer": {
-                "text": "Pelosi Trade Bot",
+                "text": "Congressional Trade Bot",
                 "icon_url": "https://cdn.discordapp.com/emojis/📈.png"
             },
             "timestamp": datetime.utcnow().isoformat()
         }
         
         return {
-            "username": "Pelosi Trade Bot",
+            "username": "Congressional Trade Bot",
             "avatar_url": "https://cdn.discordapp.com/emojis/📈.png",
             "embeds": [embed]
         }
@@ -178,14 +181,14 @@ class DiscordNotifier:
                 }
             ],
             "footer": {
-                "text": "Pelosi Trade Bot",
+                "text": "Congressional Trade Bot",
                 "icon_url": "https://cdn.discordapp.com/emojis/📈.png"
             },
             "timestamp": datetime.utcnow().isoformat()
         }
         
         return {
-            "username": "Pelosi Trade Bot",
+            "username": "Congressional Trade Bot",
             "avatar_url": "https://cdn.discordapp.com/emojis/📈.png",
             "embeds": [embed]
         }
@@ -215,14 +218,14 @@ class DiscordNotifier:
                 }
             ],
             "footer": {
-                "text": "Pelosi Trade Bot",
+                "text": "Congressional Trade Bot",
                 "icon_url": "https://cdn.discordapp.com/emojis/📈.png"
             },
             "timestamp": datetime.utcnow().isoformat()
         }
         
         return {
-            "username": "Pelosi Trade Bot",
+            "username": "Congressional Trade Bot",
             "avatar_url": "https://cdn.discordapp.com/emojis/📈.png",
             "embeds": [embed]
         }
@@ -309,18 +312,18 @@ class DiscordNotifier:
         """Test the Discord webhook connection."""
         try:
             test_embed = {
-                "title": "🧪 Pelosi Trade Bot Connection Test",
+                "title": "🧪 Congressional Trade Bot Connection Test",
                 "description": "Connection test successful!",
                 "color": 0x00ff00,  # Green for success
                 "footer": {
-                    "text": "Pelosi Trade Bot",
+                    "text": "Congressional Trade Bot",
                     "icon_url": "https://cdn.discordapp.com/emojis/📈.png"
                 },
                 "timestamp": datetime.utcnow().isoformat()
             }
             
             test_message = {
-                "username": "Pelosi Trade Bot",
+                "username": "Congressional Trade Bot",
                 "avatar_url": "https://cdn.discordapp.com/emojis/📈.png",
                 "embeds": [test_embed]
             }
