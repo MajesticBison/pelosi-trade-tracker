@@ -48,21 +48,22 @@ class MultiPoliticianTracker:
         self.logger.info("Multi-Politician Trade Tracker initialized")
     
     def _setup_discord_notifiers(self):
-        """Set up Discord notifiers for each active politician."""
+        """Set up Discord notifiers for each active politician using shared webhook."""
         active_politicians = get_all_active_politicians()
         
-        for politician in active_politicians:
-            if politician.discord_webhook:
+        # Get shared Discord webhook from environment
+        webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
+        channel_name = os.getenv('DISCORD_CHANNEL_NAME', '#congressional-trades')
+        
+        if webhook_url:
+            for politician in active_politicians:
                 try:
-                    self.discord_notifiers[politician.name] = DiscordNotifier(
-                        politician.discord_webhook, 
-                        politician.channel_name
-                    )
+                    self.discord_notifiers[politician.name] = DiscordNotifier(webhook_url, channel_name)
                     self.logger.info(f"Discord integration enabled for {politician.full_name}")
                 except Exception as e:
                     self.logger.error(f"Failed to setup Discord for {politician.full_name}: {e}")
-            else:
-                self.logger.warning(f"No Discord webhook configured for {politician.full_name}")
+        else:
+            self.logger.warning("No Discord webhook configured in environment variables")
     
     def run(self):
         """Run the main tracking process."""
@@ -110,21 +111,25 @@ class MultiPoliticianTracker:
         new_filings = 0
         new_trades = 0
         
-        # Limit to most recent filings if database is fresh
-        processed_count = len(self.database.get_politician_filings(politician.name))
-        if processed_count == 0 and len(filings) > 2:
-            self.logger.info(f"Fresh database for {politician.full_name}. Limiting to first 2 most recent filings out of {len(filings)} found.")
-            filings = filings[:2]
+        # Always limit to most recent 1 PTR filing per politician
+        if len(filings) > 1:
+            self.logger.info(f"Limiting to 1 most recent PTR filing for {politician.full_name} out of {len(filings)} found.")
+            filings = filings[:1]
         
         for filing in filings:
             filing_id = filing['filing_id']
+            
+            # Only process PTR filings (Periodic Transaction Reports)
+            if not filing.get('is_ptr', False):
+                self.logger.debug(f"Skipping non-PTR filing {filing_id} ({filing.get('filing_type', 'Unknown')}) for {politician.full_name}")
+                continue
             
             # Check if already processed
             if self.database.is_filing_processed(filing_id):
                 self.logger.debug(f"Filing {filing_id} already processed for {politician.full_name}")
                 continue
             
-            self.logger.info(f"Processing new filing {filing_id} for {politician.full_name}")
+            self.logger.info(f"Processing new PTR filing {filing_id} for {politician.full_name}")
             
             try:
                 # Download and parse PDF
